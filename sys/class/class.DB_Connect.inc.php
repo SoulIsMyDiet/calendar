@@ -14,19 +14,24 @@ class DB_Connect{
 		{
 			$this->db = $db;
 		}
-		else
+		else //just in case if something weird happen we try again to make conection with database*
 		{
-			//$dbs = "pgsql:host=".DB_HOST.";dbname=".DB_NAME;
-
+			/*PROBLEM WITH CONST
+			 *$dbs = "pgsql:host=".DB_HOST.";dbname=".DB_NAME;
+			 */
 			$dbs ="pgsql:host=localhost;port=5432;dbname=calendar";
 			try
 			{
-				//const are definded in /sys/config/db-cred.inc.php
-				//$dbo = new PDO($dbs, DB_USER, DB_PASS);
+
+				//const are definded in /sys/config/dbcred.inc.php
+
+				/*PROBLEM WITH CONST
+				 *$dbo = new PDO($dbs, DB_USER, DB_PASS);
+				 */
 
 				$this->db = new PDO($dbs, 'ziom', 'ziomek');
 			}
-			catch (Exception $e)
+			catch (Exception $e)//*but this time we gonna know about the errors 
 			{
 				die($e->getMessage());
 			}
