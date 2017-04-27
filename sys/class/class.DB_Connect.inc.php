@@ -16,11 +16,15 @@ class DB_Connect{
 		}
 		else
 		{
-			$dbs ="pgsql:host=".DB_HOST.";dbname=".DB_NAME;
+			//$dbs = "pgsql:host=".DB_HOST.";dbname=".DB_NAME;
+
+			$dbs ="pgsql:host=localhost;port=5432;dbname=calendar";
 			try
 			{
 				//const are definded in /sys/config/db-cred.inc.php
-				$this->db = new PDO($dbs, DB_USER, DB_PASS);
+				//$dbo = new PDO($dbs, DB_USER, DB_PASS);
+
+				$this->db = new PDO($dbs, 'ziom', 'ziomek');
 			}
 			catch (Exception $e)
 			{

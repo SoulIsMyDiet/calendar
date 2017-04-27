@@ -6,8 +6,8 @@ $A = [];
 
 $A['DB_HOST'] = 'localhost';
 
-$A['DB_USER'] = 'ktos';
+$A['DB_USER'] = 'ziom';
 
-$A['DB_PASS'] = '';
+$A['DB_PASS'] = 'ziomek';
 
 $A['DB_NAME'] = 'calendar';
