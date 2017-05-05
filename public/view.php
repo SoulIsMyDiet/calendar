@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 if(isset($_GET['event_id']))
 {
-	$id = preg_replace('/[^0-9]/', '', $_GET['event_id']);
+	$id = preg_replace('/[^0-9]/', '', $_GET['event_id']);//making sure we take care of int
 	if (empty($id))
 	{
 		header("location: ./");
