@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+//declare(strict_types=1);//uncomment in php7
 /*
  * Operations with database
  *

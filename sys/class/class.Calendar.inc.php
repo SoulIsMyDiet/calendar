@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+//declare(strict_types=1);
 
 /*
  * Creates and modificate the event calendar
@@ -79,11 +79,12 @@ class Calendar extends DB_Connect{
 	public function buildCalendar(){
 
 		$cal_month = date('F Y', strtotime($this->_useDate));
-		define('WEEKDAYS', ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd']);
+		//define(WEEKDAYS, ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd']);//uncoment in php7
+$weekdays = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
 		$html = "\n\t<h2>$cal_month</h2>";//heading of callendar
 		for($d=0, $labels=NULL; $d<7; ++$d )
 		{
-			$labels .= "\n\t\t<li>".WEEKDAYS[$d]."</li>";
+			$labels .= "\n\t\t<li>$weekdays[$d]</li>";//in php7 change var into const WEEKDAYS
 		}
 		$html .="\n\t<ul class= \"weekdays\">".$labels."\n\t</ul>";
 		$events = $this->_createEventObj();
@@ -141,9 +142,48 @@ public function displayEvent($id){
 		$end = date('g:ia', strtotime($event->end));
 
 		return "<h2>$event->title</h2>"."\n\t<p class=\"dates\">$date, $start&mdash;$end</p>"."\n\t<p>$event->description</p>";
+
+public function displayForm(){
+	if(isset($_POST['event_id']))
+{
+	$id = (int) $_POST['event_id'];
 }
+else
+{
+$id = NULL;
+}
+$submit = "utwórz nowe wydarzenie";
 
+$event = new Event();
 
+if (!empty($id))
+{
+$event = $this->_loadEventById($id);
+
+if(!is_object($event)){return NULL;}
+$submit = "Edytuj to wydarzenie"
+}
+return <<<FORM_MARKUP
+<form action="assets/inc/process.inc.php" method="POST">
+<fieldset>
+	<legend>$submit</legend>
+	<label for="event_title"> Nazwa wydarzenia </label>
+	<input type="text" name="event_title" id="event_title" value="$event->title" />
+	<label for="event_start"> Czas rozpoczęcia </label>
+	<input type="text" name="event_start" id="event_start" value="$event->start" />
+	<label for="event_end"> Czas zakończenia </label>
+	<input type="text" name="event_end" id="event_end" value="$event->end" />
+	<label for="event_description"> Opis wydarzenia </label>
+	<textarea name="event_description" id="event_description">$event->description</textarea>
+	<input type="hidden" name="event_id" value="$event->id" />
+	<input type="hidden" name="token" value="$_SESSION[token]" />
+	<input type="hidden" name="action" value="$event_edit" />
+	<input type="submit" name="event_submit" value="$submit" />
+lub <a href="./">anuluj</a>
+</fieldset>
+</form>
+FORM_MARKUP;
+}
 	//in this method we make a table of tables and we add a 'key' to each table which is the day of month
 			private function _createEventObj(){
 				$arr = $this->_loadEventData();
