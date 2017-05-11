@@ -177,12 +177,58 @@ return <<<FORM_MARKUP
 	<textarea name="event_description" id="event_description">$event->description</textarea>
 	<input type="hidden" name="event_id" value="$event->id" />
 	<input type="hidden" name="token" value="$_SESSION[token]" />
-	<input type="hidden" name="action" value="$event_edit" />
+	<input type="hidden" name="action" value="event_edit" />
 	<input type="submit" name="event_submit" value="$submit" />
 lub <a href="./">anuluj</a>
 </fieldset>
 </form>
 FORM_MARKUP;
+}
+
+public function processForm(){
+	if ($_POST['action']!='event_edit')
+	{
+		return "Nieprawidłwe użycie metdody processForm";
+	}
+	
+	$title = htmlentities($_POST['event_title'], ENT_QUOTES);
+	$desc = htmlentities($_POST['event_description'], ENT_QUOTES);
+	$start = htmlentities($_POST['event_start'], ENT_QUOTES);
+	$end = htmlentities($_POST['event_end'], ENT_QUOTES);
+	if (empty($_POST['event_id']))
+	{
+		$sql = "INSERT INTO events
+		(event_title, event_desc, event_start, event_end)
+		VALUES
+		(:title, :description, :start, :end)";
+	}
+	else
+	{
+		$id = (int) $_POST['event_id'];
+		$sql = "UPDATE events
+		SET
+		event_title = :title,
+		event_desc = :description,
+		event_start= :start,
+		event_end= :end
+		WHERE event_id = $id";
+	}
+	try
+	{
+		$stmt = $this->db->prepare($sql);
+		$stmt->bindParam(":title", $title, PDO::PARAM_STR);
+		$stmt->bindParam(":description", $desc, PDO::PARAM_STR);
+		$stmt->bindParam(":start", $start, PDO::PARAM_STR);
+		$stmt->bindParam(":end", $end, PDO::PARAM_STR); 
+		$stmt->execute();
+		$stmt->closeCursor();
+		return TRUE;
+	}
+	catch ( Exception $e )
+	{
+		return $e-> getMessage();
+	}
+		
 }
 	//in this method we make a table of tables and we add a 'key' to each table which is the day of month
 			private function _createEventObj(){
