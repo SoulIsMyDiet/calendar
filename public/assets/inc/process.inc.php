@@ -2,14 +2,14 @@
 //declare (strict_types=1) //uncomment at php7
 
 $status = session_status();
-if($stattus == PHP_SESSION_NONE)
+if($status == PHP_SESSION_NONE)
 {
 	session_start();
 }
 
 include_once __DIR__.'/../../../sys/config/dbcred.inc.php';
 
-foreache ($A as $name => $val )
+foreach ($A as $name => $val )
 {
 	define($name, $val);
 }
@@ -26,6 +26,7 @@ if ($_POST['token'] == $_SESSION['token'] && isset($actions[$_POST['action']]))
 	$method = $use_array['method'];
 	if (TRUE === $msg=$obj->$method())
 	{
+	//echo $obj->$method();
 		header($use_array['header']);
 		exit;
 	}
@@ -33,6 +34,7 @@ if ($_POST['token'] == $_SESSION['token'] && isset($actions[$_POST['action']]))
 	{
 		die($msg);
 	}
+}
 else
 {
 	header("Location: ../../");
@@ -40,7 +42,7 @@ else
 }
 function __autoload($class_name)
 {
-	$filename = '../../../sys/class/class.'.strtolower($class_name).'.inc.php';
+	$filename = '../../../sys/class/class.'.$class_name.'.inc.php';
 	if(file_exists($filename))
 	{
 		include_once $filename;
@@ -48,4 +50,4 @@ function __autoload($class_name)
 }
 
 
-}
+

@@ -7,7 +7,7 @@ if($status ==PHP_SESSION_NONE)
 
 if (!isset($_SESSION['token']))
 {
-	$_SESSION['token'] = sha1(uniqd((string)mt_rand(), TRUE));
+	$_SESSION['token'] = sha1(uniqid((string)mt_rand(), TRUE));
 }
 //declare(strict_types=1);
 

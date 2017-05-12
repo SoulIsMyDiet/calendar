@@ -142,7 +142,7 @@ public function displayEvent($id){
 		$end = date('g:ia', strtotime($event->end));
 
 		return "<h2>$event->title</h2>"."\n\t<p class=\"dates\">$date, $start&mdash;$end</p>"."\n\t<p>$event->description</p>";
-
+}
 public function displayForm(){
 	if(isset($_POST['event_id']))
 {
@@ -161,7 +161,7 @@ if (!empty($id))
 $event = $this->_loadEventById($id);
 
 if(!is_object($event)){return NULL;}
-$submit = "Edytuj to wydarzenie"
+$submit = "Edytuj to wydarzenie";
 }
 return <<<FORM_MARKUP
 <form action="assets/inc/process.inc.php" method="POST">
@@ -190,7 +190,7 @@ public function processForm(){
 	{
 		return "Nieprawidłwe użycie metdody processForm";
 	}
-	
+//	echo "dociera?";
 	$title = htmlentities($_POST['event_title'], ENT_QUOTES);
 	$desc = htmlentities($_POST['event_description'], ENT_QUOTES);
 	$start = htmlentities($_POST['event_start'], ENT_QUOTES);
@@ -201,6 +201,7 @@ public function processForm(){
 		(event_title, event_desc, event_start, event_end)
 		VALUES
 		(:title, :description, :start, :end)";
+//echo $sql;
 	}
 	else
 	{
@@ -220,6 +221,7 @@ public function processForm(){
 		$stmt->bindParam(":description", $desc, PDO::PARAM_STR);
 		$stmt->bindParam(":start", $start, PDO::PARAM_STR);
 		$stmt->bindParam(":end", $end, PDO::PARAM_STR); 
+//var_dump($stmt);
 		$stmt->execute();
 		$stmt->closeCursor();
 		return TRUE;
