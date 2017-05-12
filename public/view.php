@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+//declare(strict_types=1);//uncomment at php7
 
 if(isset($_GET['event_id']))
 {
@@ -10,7 +10,8 @@ if(isset($_GET['event_id']))
 		exit;
 	}
 }
-else
+else//for example if wejust write */view.php in the browser
+
 {
 	header("Location: ./");
 	exit;

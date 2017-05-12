@@ -130,9 +130,9 @@ $weekdays = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
 		return $html;
 	}
 public function displayEvent($id){
-		if (empty($id)) {return NULL;}
+		if (empty($id)) {return NULL;}//it is almost imposiible because befeore we call thismethos we already validate this in view.php but you know just in case
 
-		$id = preg_replace('/[^0-9]/', '', $id);
+		$id = preg_replace('/[^0-9]/', '', $id); //we already did this in view.php but this line looks awesome
 
 		$event = $this->_loadEventById($id);
 		$ts = strtotime($event->start);
@@ -145,24 +145,24 @@ public function displayEvent($id){
 }
 public function displayForm(){
 	if(isset($_POST['event_id']))
-{
-	$id = (int) $_POST['event_id'];
-}
-else
-{
-$id = NULL;
-}
-$submit = "utwórz nowe wydarzenie";
+	{
+		$id = (int) $_POST['event_id'];
+	}
+	else
+	{
+		$id = NULL;
+	}
+	$submit = "utwórz nowe wydarzenie";
 
-$event = new Event();
+	$event = new Event();
 
-if (!empty($id))
-{
-$event = $this->_loadEventById($id);
+	if (!empty($id))
+	{
+		$event = $this->_loadEventById($id);
 
-if(!is_object($event)){return NULL;}
-$submit = "Edytuj to wydarzenie";
-}
+		if(!is_object($event)){return NULL;}
+		$submit = "Edytuj to wydarzenie";
+	}
 return <<<FORM_MARKUP
 <form action="assets/inc/process.inc.php" method="POST">
 <fieldset>
@@ -190,7 +190,6 @@ public function processForm(){
 	{
 		return "Nieprawidłwe użycie metdody processForm";
 	}
-//	echo "dociera?";
 	$title = htmlentities($_POST['event_title'], ENT_QUOTES);
 	$desc = htmlentities($_POST['event_description'], ENT_QUOTES);
 	$start = htmlentities($_POST['event_start'], ENT_QUOTES);
@@ -233,40 +232,39 @@ public function processForm(){
 		
 }
 	//in this method we make a table of tables and we add a 'key' to each table which is the day of month
-			private function _createEventObj(){
-				$arr = $this->_loadEventData();
-				$events = [];//making empty array at the begining just to avoid problems
-				foreach($arr as $event)
-				{
-					$day =date('j', strtotime($event['event_start']));
-					try
-					{
-						$events[$day][] =new Event ($event);
-					}
-					catch(Exception $e)
-					{
-						die($e->getMessage());
-					}
-				}
-				return $events;
-			}
-		private function _loadEventById($id){
-		
-		if (empty($id) )
+private function _createEventObj(){
+	$arr = $this->_loadEventData();
+	$events = [];//making empty array at the begining just to avoid problems
+	foreach($arr as $event)
+	{
+		$day =date('j', strtotime($event['event_start']));
+		try
 		{
-			return NUll;
+			$events[$day][] =new Event ($event);
 		}
-		$event = $this->_loadEventData($id);
-
-		if ( isset($event[0]))
+		catch(Exception $e)
 		{
-			return new Event($event[0]);
-			//$event is a table with one table $event[0]
-		}
-		else
-		{
-			return NULL;
+			die($e->getMessage());
 		}
 	}
+return $events;
+			}
+private function _loadEventById($id){
+		
+	if (empty($id) )
+	{
+		return NUll;
+	}
+	$event = $this->_loadEventData($id);
+
+	if ( isset($event[0]))
+	{
+		return new Event($event[0]);			//$event is a table with one table $event[0]
+	}
+	else
+	{
+		return NULL;
+	}
+}
 	
 }

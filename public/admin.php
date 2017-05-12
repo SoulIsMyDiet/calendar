@@ -1,6 +1,6 @@
 <?php
 
-//declare (strict_types=1);
+//declare (strict_types=1);//uncomment at php7
 
 include_once __DIR__.'/../sys/core/init.inc.php';
 
