@@ -20,7 +20,7 @@ else//for example if wejust write */view.php in the browser
 include_once __DIR__.'/../sys/core/init.inc.php';
 
 $page_title = "podejrzyj wydarzenie";
-$css_files = ["style.css"];
+$css_files = ["style.css", "admin.css"];
 include_once 'assets/common/header.inc.php';
 
 $cal = new Calendar($dbo);

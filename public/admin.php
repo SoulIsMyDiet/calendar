@@ -4,6 +4,11 @@
 
 include_once __DIR__.'/../sys/core/init.inc.php';
 
+if(!isset($_SESION['user']))
+{
+	header("Location: ./");
+	exit;
+}
 $page_title = "Dodaj/edytuj wydarzenie";
 $css_files = ["style.css", "admin.css"];
 include_once 'assets/common/header.inc.php';

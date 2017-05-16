@@ -6,7 +6,6 @@ if($status == PHP_SESSION_NONE)
 {
 	session_start();
 }
-
 include_once __DIR__.'/../../../sys/config/dbcred.inc.php';
 
 foreach ($A as $name => $val )
@@ -14,7 +13,10 @@ foreach ($A as $name => $val )
 	define($name, $val);
 }
 
-$actions = ['event_edit' =>['object' => 'Calendar', 'method' => 'processForm', 'header' => 'Location: ../..']];
+$actions = ['event_edit' =>['object' => 'Calendar', 'method' => 'processForm', 'header' => 'Location: ../../'],
+			'user_login' => ['object' => 'Admin', 'method' => 'processLoginForm', 'header' => 'Location: ../../'],
+			'user_logout' => ['object' => 'Admin', 'method' => 'processLogout', 'header' => 'Location: ../../']
+			];
 
 $dsn = "pgsql:host=".DB_HOST.";dbname=".DB_NAME;
 $dbo = new PDO($dsn, 'ziom', 'ziomek');

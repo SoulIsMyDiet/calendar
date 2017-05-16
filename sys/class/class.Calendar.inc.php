@@ -126,8 +126,10 @@ $weekdays = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
 			}
 
 		$html .="\n\t</ul>\n\n";
+		
+		$admin = $this->_adminGeneralOptions();
 
-		return $html;
+		return $html.$admin;
 	}
 public function displayEvent($id){
 		if (empty($id)) {return NULL;}//it is almost imposiible because befeore we call thismethos we already validate this in view.php but you know just in case
@@ -140,8 +142,10 @@ public function displayEvent($id){
 		$start = date('g:ia', $ts);
 		$end = date('g:ia', $ts);
 		$end = date('g:ia', strtotime($event->end));
+		
+		$admin = $this->_adminEntryOptions($id);
 
-		return "<h2>$event->title</h2>"."\n\t<p class=\"dates\">$date, $start&mdash;$end</p>"."\n\t<p>$event->description</p>";
+		return "<h2>$event->title</h2>"."\n\t<p class=\"dates\">$date, $start&mdash;$end</p>"."\n\t<p>$event->description</p>$admin";
 }
 public function displayForm(){
 	if(isset($_POST['event_id']))
@@ -231,6 +235,56 @@ public function processForm(){
 	}
 		
 }
+
+public function confirmDelete($id){
+	if (empty($id)) {return NULL;}
+	
+	$id = preg_replace('/[^0-9]/', '', $id);
+	
+	if (isset($_POST['confirm_delete']) && $_POST['token']==$_SESSION['token'])
+	{
+		if ($_POST['confirm_delete']=="Tak, usuń wydarzenie")
+		{			
+			$sql = "DELETE FROM events WHERE event_id=:id LIMIT 1;";
+			try
+			{
+				$stmt = $this->db->prepare($sql);
+				$stmt->bindParam("id", $id, PDO::PARAM_INT );
+				$stmt->execute();
+				$stmt->closeCursor();
+				header("Location: ./");
+				return;
+			}
+			catch(Exception $e)
+			{
+				return $e->getMessage();
+			}
+		}
+		else
+		{
+			header("Location: ./");
+			return;
+		}
+	}
+	$event = $this->_loadEventById($id);
+	
+	if(!is_object($event)) {header("Location: ./");
+	
+	return <<< CONFIRM_DELETE
+	<form action="confirmdelete.php" method="post">
+		<h2>
+			Czy na pewno chcesz usunąć "$event->title"?
+		</h2>
+		<p> Tej operacji <strong>nie można cofnąć</strong>.</p>
+		<p>
+			<input type="submit" name="confirm_delete" value ="Tak, usuń wydarzenie" />
+			<input type="hidden name="token" value="Nie no co Ty, nie chce!" />
+			<input type="hidden name="token" value="$event->id" />
+			<input type="hidden name="token" value="$_SESSION[token]" />
+		</p>
+	</form>
+CONFIRM_DELETE;
+}
 	//in this method we make a table of tables and we add a 'key' to each table which is the day of month
 private function _createEventObj(){
 	$arr = $this->_loadEventData();
@@ -266,5 +320,51 @@ private function _loadEventById($id){
 		return NULL;
 	}
 }
+private function _adminGeneralOptions(){
+	if (isset($_SESSION['user']))
+	{
+	return <<<ADMINISTR
 	
+	<a href="admin.php" class="admin">+Dodaj nowe wydarzenie</a>
+	<form> action='assets/inc/process.inc.php' method='post'>
+		<div>
+			<input type="submit" value="Wyloguj" class="logout" />
+			<input type="hidden" name="token" value="$_SESSION[token]" />
+			<input type="hidden" name="action" value="user_logout"
+		</div>
+	</form>		
+ADMINISTR;
+	}
+	else
+	{
+		return <<<ADMINISTR2
+		<a href="login.php">Zaloguj</a>
+ADMINISTR2;
+	}
+}
+	private  function _adminEntryOptions($id){
+		if (isset($_SESSION['user']))
+		{
+		return <<<ADMIN_OPTIONS
+		<div class="admin-options">
+		<form action="admin.php" method="post">
+			<p>
+				<input type="submit" name="edit_event" value="Edytuj to wydarzenie" />
+				<input type="hidden" name="event_id" value"id" />
+			</p>
+		</form>
+		<form action="confirmdelete.php" method="post">
+		<p>
+			<input type="submit" name="delete_event" value="Usuń to wydarzenie" />
+			<input type="hidden" name="event_id" value"id" />
+		</p>
+		</form>
+		</div><!-- end .admin-options -->
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
 }
