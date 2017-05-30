@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+//declare(strict_types=1);
 
 /*
  * Creates and modificate the event calendar
@@ -79,11 +79,12 @@ class Calendar extends DB_Connect{
 	public function buildCalendar(){
 
 		$cal_month = date('F Y', strtotime($this->_useDate));
-		define('WEEKDAYS', ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd']);
+		//define(WEEKDAYS, ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd']);//uncoment in php7
+$weekdays = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
 		$html = "\n\t<h2>$cal_month</h2>";//heading of callendar
 		for($d=0, $labels=NULL; $d<7; ++$d )
 		{
-			$labels .= "\n\t\t<li>".WEEKDAYS[$d]."</li>";
+			$labels .= "\n\t\t<li>$weekdays[$d]</li>";//in php7 change var into const WEEKDAYS
 		}
 		$html .="\n\t<ul class= \"weekdays\">".$labels."\n\t</ul>";
 		$events = $this->_createEventObj();
@@ -125,13 +126,15 @@ class Calendar extends DB_Connect{
 			}
 
 		$html .="\n\t</ul>\n\n";
+		
+		$admin = $this->_adminGeneralOptions();
 
-		return $html;
+		return $html.$admin;
 	}
 public function displayEvent($id){
-		if (empty($id)) {return NULL;}
+		if (empty($id)) {return NULL;}//it is almost imposiible because befeore we call thismethos we already validate this in view.php but you know just in case
 
-		$id = preg_replace('/[^0-9]/', '', $id);
+		$id = preg_replace('/[^0-9]/', '', $id); //we already did this in view.php but this line looks awesome
 
 		$event = $this->_loadEventById($id);
 		$ts = strtotime($event->start);
@@ -139,46 +142,239 @@ public function displayEvent($id){
 		$start = date('g:ia', $ts);
 		$end = date('g:ia', $ts);
 		$end = date('g:ia', strtotime($event->end));
+		
+		$admin = $this->_adminEntryOptions($id);
 
-		return "<h2>$event->title</h2>"."\n\t<p class=\"dates\">$date, $start&mdash;$end</p>"."\n\t<p>$event->description</p>";
+		return "<h2>$event->title</h2>"."\n\t<p class=\"dates\">$date, $start&mdash;$end</p>"."\n\t<p>$event->description</p>$admin";
+}
+public function displayForm(){
+	if(isset($_POST['event_id']))
+	{
+		$id = (int) $_POST['event_id'];
+	}
+	else
+	{
+		$id = NULL;
+	}
+	$submit = "utwórz nowe wydarzenie";
+
+	$event = new Event();
+
+	if (!empty($id))
+	{
+		$event = $this->_loadEventById($id);
+
+		if(!is_object($event)){return NULL;}
+		$submit = "Edytuj to wydarzenie";
+	}
+return <<<FORM_MARKUP
+<form action="assets/inc/process.inc.php" method="POST">
+<fieldset>
+	<legend>$submit</legend>
+	<label for="event_title"> Nazwa wydarzenia </label>
+	<input type="text" name="event_title" id="event_title" value="$event->title" />
+	<label for="event_start"> Czas rozpoczęcia </label>
+	<input type="text" name="event_start" id="event_start" value="$event->start" />
+	<label for="event_end"> Czas zakończenia </label>
+	<input type="text" name="event_end" id="event_end" value="$event->end" />
+	<label for="event_description"> Opis wydarzenia </label>
+	<textarea name="event_description" id="event_description">$event->description</textarea>
+	<input type="hidden" name="event_id" value="$event->id" />
+	<input type="hidden" name="token" value="$_SESSION[token]" />
+	<input type="hidden" name="action" value="event_edit" />
+	<input type="submit" name="event_submit" value="$submit" />
+lub <a href="./">anuluj</a>
+</fieldset>
+</form>
+FORM_MARKUP;
+}
+
+public function processForm(){
+	if ($_POST['action']!='event_edit')
+	{
+		return "Nieprawidłwe użycie metdody processForm";
+	}
+	$title = htmlentities($_POST['event_title'], ENT_QUOTES);
+	$desc = htmlentities($_POST['event_description'], ENT_QUOTES);
+	$start = htmlentities($_POST['event_start'], ENT_QUOTES);
+	$end = htmlentities($_POST['event_end'], ENT_QUOTES);
+	if (empty($_POST['event_id']))
+	{
+		$sql = "INSERT INTO events
+		(event_title, event_desc, event_start, event_end)
+		VALUES
+		(:title, :description, :start, :end)";
+//echo $sql;
+	}
+	else
+	{
+		$id = (int) $_POST['event_id'];
+		$sql = "UPDATE events
+		SET
+		event_title = :title,
+		event_desc = :description,
+		event_start= :start,
+		event_end= :end
+		WHERE event_id = $id";
+	}
+	try
+	{
+		$stmt = $this->db->prepare($sql);
+		$stmt->bindParam(":title", $title, PDO::PARAM_STR);
+		$stmt->bindParam(":description", $desc, PDO::PARAM_STR);
+		$stmt->bindParam(":start", $start, PDO::PARAM_STR);
+		$stmt->bindParam(":end", $end, PDO::PARAM_STR); 
+//var_dump($stmt);
+		$stmt->execute();
+		$stmt->closeCursor();
+		return TRUE;
+	}
+	catch ( Exception $e )
+	{
+		return $e-> getMessage();
+	}
+		
+}
+
+public function confirmDelete($id){
+	if (empty($id)) {return "hello";}
+	
+	$id = preg_replace('/[^0-9]/', '', $id);
+echo "proba\t";	
+	if (isset($_POST['confirm_delete']) && $_POST['token']==$_SESSION['token'])
+	{
+echo "proba\t";	
+		if ($_POST['confirm_delete']=="Tak, usuń wydarzenie")
+		{			
+			$sql = "DELETE FROM events WHERE event_id=:id LIMIT 1;";
+			try
+			{
+				$stmt = $this->db->prepare($sql);
+				$stmt->bindParam("id", $id, PDO::PARAM_INT );
+				$stmt->execute();
+				$stmt->closeCursor();
+				header("Location: ./");
+				return;
+			}
+			catch(Exception $e)
+			{
+				return $e->getMessage();
+			}
+		}
+		else
+		{
+echo "probka\t";	
+			header("Location: ./");
+			return;
+		}
+	}
+echo "proba\t";	
+	$event = $this->_loadEventById($id);
+	
+	if(!is_object($event)) header("Location: ./");
+	echo "proba\t";	
+	return <<<CONFIRM_DELETE
+	<form action="confirmdelete.php" method="post">
+		<h2>
+			Czy na pewno chcesz usunąć "$event->title"?
+		</h2>
+		<p> Tej operacji <strong>nie można cofnąć</strong>.</p>
+		<p>
+			<input type="submit" name="confirm_delete" value ="Tak, usuń wydarzenie" />
+			<input type="hidden name="token" value="Nie no co Ty, nie chce!" />
+			<input type="hidden name="token" value="$event->id" />
+			<input type="hidden name="token" value="$_SESSION[token]" />
+		</p>
+	</form>
+CONFIRM_DELETE;
 }
 
 
 	//in this method we make a table of tables and we add a 'key' to each table which is the day of month
-			private function _createEventObj(){
-				$arr = $this->_loadEventData();
-				$events = [];//making empty array at the begining just to avoid problems
-				foreach($arr as $event)
-				{
-					$day =date('j', strtotime($event['event_start']));
-					try
-					{
-						$events[$day][] =new Event ($event);
-					}
-					catch(Exception $e)
-					{
-						die($e->getMessage());
-					}
-				}
-				return $events;
-			}
-		private function _loadEventById($id){
-		
-		if (empty($id) )
+private function _createEventObj(){
+	$arr = $this->_loadEventData();
+	$events = [];//making empty array at the begining just to avoid problems
+	foreach($arr as $event)
+	{
+		$day =date('j', strtotime($event['event_start']));
+		try
 		{
-			return NUll;
+			$events[$day][] =new Event ($event);
 		}
-		$event = $this->_loadEventData($id);
-
-		if ( isset($event[0]))
+		catch(Exception $e)
 		{
-			return new Event($event[0]);
-			//$event is a table with one table $event[0]
+			die($e->getMessage());
+		}
+	}
+return $events;
+			}
+private function _loadEventById($id){
+		
+	if (empty($id) )
+	{
+		return NUll;
+	}
+	$event = $this->_loadEventData($id);
+
+	if ( isset($event[0]))
+	{
+		return new Event($event[0]);			//$event is a table with one table $event[0]
+	}
+	else
+	{
+		return NULL;
+	}
+}
+private function _adminGeneralOptions(){
+	if (isset($_SESSION['user']))
+	{
+$var = var_dump(isset($_SESION['user']));	
+
+	return <<<ADMINISTR
+<?php
+echo $var;
+?>
+	<a href="admin.php" class="admin">+Dodaj nowe wydarzenie</a>
+	<form action='assets/inc/process.inc.php' method='post'>
+		<div>
+			<input type="submit" value="Wyloguj" class="logout" />
+			<input type="hidden" name="token" value="$_SESSION[token]" />
+			<input type="hidden" name="action" value="user_logout"/>
+		</div>
+	</form>		
+ADMINISTR;
+	}
+	else
+	{
+		return <<<ADMINISTR2
+		<a href="login.php">Zaloguj</a>
+ADMINISTR2;
+	}
+}
+	private  function _adminEntryOptions($id){
+		if (isset($_SESSION['user']))
+		{
+		return <<<ADMIN_OPTIONS
+		<div class="admin-options">
+		<form action="admin.php" method="post">
+			<p>
+				<input type="submit" name="edit_event" value="Edytuj to wydarzenie" />
+				<input type="hidden" name="event_id" value"$id" />
+			</p>
+		</form>
+		<form action="confirmdelete.php" method="post">
+		<p>
+			<input type="submit" name="delete_event" value="Usuń to gowniane wydarzenie z id $id" />
+			<input type="hidden" name="event_id" value="$id" />
+
+		</p>
+		</form>
+		</div><!-- end .admin-options -->
+ADMIN_OPTIONS;
 		}
 		else
 		{
 			return NULL;
 		}
 	}
-	
 }

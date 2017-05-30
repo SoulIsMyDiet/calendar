@@ -1,6 +1,15 @@
 <?php
+$status = session_status();
+if($status ==PHP_SESSION_NONE)
+{
+	session_start();
+}
 
-declare(strict_types=1);
+if (!isset($_SESSION['token']))
+{
+	$_SESSION['token'] = sha1(uniqid((string)mt_rand(), TRUE));
+}
+//declare(strict_types=1);
 
 include_once __DIR__.'/../config/dbcred.inc.php';
 

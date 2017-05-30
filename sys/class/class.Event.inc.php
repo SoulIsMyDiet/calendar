@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+//declare(strict_types=1);//uncomment at php7
 
 class Event{
 	public $id;
@@ -9,7 +9,7 @@ class Event{
 	public $start;
 	public $end;
 
-	public function __construct($event){
+	public function __construct($event=[]){
 		if(is_array($event))
 		{
 			$this->id = $event['event_id'];
