@@ -12,24 +12,25 @@ public function __construct($db=NULL, $saltLength=NULL){
 	
 	if (is_int($saltLength))
 	{
-		$this->_saltLength = $saltLength
+		$this->_saltLength = $saltLength;
 	}
 }
-public function processingLoginForm(){
-	if(( $_POST['action']!='user_login' )
+public function processLoginForm(){
+	if( $_POST['action']!='user_login' )
 	{
-		return "Nieprawidłowa wartość parametru action w metodzie processLoginForm"
+		return "Nieprawidłowa wartość parametru action w metodzie processLoginForm";
 	}
 	$uname = htmlentities($_POST['uname'], ENT_QUOTES);
 	$pword = htmlentities($_POST['pword'], ENT_QUOTES);
 	
-	$sql = "SELECT userd_id user_name, user_email, user_pass FROM users WHERE user_name =:uname LIMIT 1;"
+	$sql = "SELECT user_id, user_name, user_email, user_pass FROM users WHERE user_name =:uname LIMIT 1;";
 	try
 	{
-		$stmt = $this ->db->prepare($sql);
-		$stmt->bindParam(:uname, $uname, PDO::PARAM_STR)
+		$stmt = $this->db->prepare($sql);
+		$stmt->bindParam(":uname", $uname, PDO::PARAM_STR);
 		$stmt->execute();
-		$user = [$stmt->fetchAll()];
+		$user = $stmt->fetchAll(PDO::FETCH_ASSOC);
+//print_r($user[0]);
 		$stmt->closeCursor();
 	}
 	catch(Exception $e)
@@ -38,18 +39,22 @@ public function processingLoginForm(){
 	}
 	if(!isset($user))
 	{
-		return "Nieprawidłowa nazwa użytkownika lub hasło.";
+		return "Nieprawidłowa nazwa kurwa chuj  użytkownika lub hasło.";
 	}
-	$hash = $this->_getSaltedHash($pword, $user['user_pass']);
-	
-	if ($user['user_pass'] == $hash )
+	$hash = $this->_getSaltedHash($pword, $user[0]['user_pass']);
+echo $hash."<br/>";
+echo "lol";
+echo "lol";
+echo $user[0]['user_pass'];	
+echo "lol";
+	if ($user[0]['user_pass'] == $hash )
 	{
-		$_SESSION['user'] = ['id' => $user['user_id'], 'name' => $user['user_name'], 'email' => $user['user_email']];
+		$_SESSION['user'] = ['id' => $user[0]['user_id'], 'name' => $user[0]['user_name'], 'email' => $user[0]['user_email']];
 		return TRUE;
 	}
 	else
 	{
-		return "Nieprawidłwa nazwa użytkownika lub hasło";
+		return "Nieprawidłwa nazwa użytkownika lub hasło do chuja pana";
 	}
 }
 public function processLogout(){

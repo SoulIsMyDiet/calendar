@@ -8,7 +8,10 @@ if ($status == PHP_SESSION_NONE)
 }
 if (isset($_POST['event_id']) && isset($_SESSION['user']))
 {
-	$id = (int) $_POST['event_id'];
+	$id = (int)$_POST['event_id'];
+echo $id;
+print_r($_POST);
+print_r($_SESSION);
 }
 else
 {
@@ -25,7 +28,7 @@ include_once 'assets/common/header.inc.php';
 
 ?>
 <div id="content">
-<?php echo $markup; ?>
+<?php echo $markup.$id; ?>
 </div><!-- end #content -->
 
 <?php

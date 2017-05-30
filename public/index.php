@@ -1,6 +1,5 @@
 <?php
 //declare(strict_types=1);
-
 include_once __DIR__.'/../sys/core/init.inc.php'; //lib initializing database
 
 $cal = new Calendar ($dbo, "2017-05-01 12:00:00");
@@ -18,7 +17,7 @@ echo $cal->buildCalendar();
 </div><!-- end #content -->
 <p>
 <?php
-echo isset($_SESSION['user'] ? "Zalogowany" : "Wylogowany"
+echo isset($_SESSION['user']) ? "Zalogowany" : "Wylogowany";
 ?>
 </p>
 <?php

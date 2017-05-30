@@ -237,12 +237,13 @@ public function processForm(){
 }
 
 public function confirmDelete($id){
-	if (empty($id)) {return NULL;}
+	if (empty($id)) {return "hello";}
 	
 	$id = preg_replace('/[^0-9]/', '', $id);
-	
+echo "proba\t";	
 	if (isset($_POST['confirm_delete']) && $_POST['token']==$_SESSION['token'])
 	{
+echo "proba\t";	
 		if ($_POST['confirm_delete']=="Tak, usuń wydarzenie")
 		{			
 			$sql = "DELETE FROM events WHERE event_id=:id LIMIT 1;";
@@ -262,15 +263,17 @@ public function confirmDelete($id){
 		}
 		else
 		{
+echo "probka\t";	
 			header("Location: ./");
 			return;
 		}
 	}
+echo "proba\t";	
 	$event = $this->_loadEventById($id);
 	
-	if(!is_object($event)) {header("Location: ./");
-	
-	return <<< CONFIRM_DELETE
+	if(!is_object($event)) header("Location: ./");
+	echo "proba\t";	
+	return <<<CONFIRM_DELETE
 	<form action="confirmdelete.php" method="post">
 		<h2>
 			Czy na pewno chcesz usunąć "$event->title"?
@@ -285,6 +288,8 @@ public function confirmDelete($id){
 	</form>
 CONFIRM_DELETE;
 }
+
+
 	//in this method we make a table of tables and we add a 'key' to each table which is the day of month
 private function _createEventObj(){
 	$arr = $this->_loadEventData();
@@ -323,14 +328,18 @@ private function _loadEventById($id){
 private function _adminGeneralOptions(){
 	if (isset($_SESSION['user']))
 	{
+$var = var_dump(isset($_SESION['user']));	
+
 	return <<<ADMINISTR
-	
+<?php
+echo $var;
+?>
 	<a href="admin.php" class="admin">+Dodaj nowe wydarzenie</a>
-	<form> action='assets/inc/process.inc.php' method='post'>
+	<form action='assets/inc/process.inc.php' method='post'>
 		<div>
 			<input type="submit" value="Wyloguj" class="logout" />
 			<input type="hidden" name="token" value="$_SESSION[token]" />
-			<input type="hidden" name="action" value="user_logout"
+			<input type="hidden" name="action" value="user_logout"/>
 		</div>
 	</form>		
 ADMINISTR;
@@ -350,13 +359,14 @@ ADMINISTR2;
 		<form action="admin.php" method="post">
 			<p>
 				<input type="submit" name="edit_event" value="Edytuj to wydarzenie" />
-				<input type="hidden" name="event_id" value"id" />
+				<input type="hidden" name="event_id" value"$id" />
 			</p>
 		</form>
 		<form action="confirmdelete.php" method="post">
 		<p>
-			<input type="submit" name="delete_event" value="Usuń to wydarzenie" />
-			<input type="hidden" name="event_id" value"id" />
+			<input type="submit" name="delete_event" value="Usuń to gowniane wydarzenie z id $id" />
+			<input type="hidden" name="event_id" value="$id" />
+
 		</p>
 		</form>
 		</div><!-- end .admin-options -->
