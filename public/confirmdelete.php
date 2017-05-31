@@ -10,11 +10,12 @@ if (isset($_POST['event_id']) && isset($_SESSION['user']))
 {
 	$id = (int)$_POST['event_id'];
 echo $id;
-print_r($_POST);
-print_r($_SESSION);
 }
 else
 {
+print_r($_POST);
+print_r($_SESSION);
+
 	header("Location: ./");
 	exit;
 }

@@ -157,7 +157,7 @@ public function displayForm(){
 		$id = NULL;
 	}
 	$submit = "utwórz nowe wydarzenie";
-
+print_r($_POST);
 	$event = new Event();
 
 	if (!empty($id))
@@ -246,11 +246,11 @@ echo "proba\t";
 echo "proba\t";	
 		if ($_POST['confirm_delete']=="Tak, usuń wydarzenie")
 		{			
-			$sql = "DELETE FROM events WHERE event_id=:id LIMIT 1;";
+			$sql = "DELETE FROM events WHERE event_id=:id;";
 			try
 			{
 				$stmt = $this->db->prepare($sql);
-				$stmt->bindParam("id", $id, PDO::PARAM_INT );
+				$stmt->bindParam(":id", $id, PDO::PARAM_INT );
 				$stmt->execute();
 				$stmt->closeCursor();
 				header("Location: ./");
@@ -281,9 +281,9 @@ echo "proba\t";
 		<p> Tej operacji <strong>nie można cofnąć</strong>.</p>
 		<p>
 			<input type="submit" name="confirm_delete" value ="Tak, usuń wydarzenie" />
-			<input type="hidden name="token" value="Nie no co Ty, nie chce!" />
-			<input type="hidden name="token" value="$event->id" />
-			<input type="hidden name="token" value="$_SESSION[token]" />
+			<input type="hidden" name="token" value="Nie no co Ty, nie chce!" />
+			<input type="hidden" name="event_id" value="$event->id" />
+			<input type="hidden" name="token" value="$_SESSION[token]" />
 		</p>
 	</form>
 CONFIRM_DELETE;
@@ -359,7 +359,7 @@ ADMINISTR2;
 		<form action="admin.php" method="post">
 			<p>
 				<input type="submit" name="edit_event" value="Edytuj to wydarzenie" />
-				<input type="hidden" name="event_id" value"$id" />
+				<input type="hidden" name="event_id" value="$id" />
 			</p>
 		</form>
 		<form action="confirmdelete.php" method="post">
