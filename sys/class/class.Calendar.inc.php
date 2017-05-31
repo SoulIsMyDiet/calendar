@@ -364,7 +364,7 @@ ADMINISTR2;
 		</form>
 		<form action="confirmdelete.php" method="post">
 		<p>
-			<input type="submit" name="delete_event" value="Usuń to gowniane wydarzenie z id $id" />
+			<input type="submit" name="delete_event" value="Usuń to wydarzenie z id $id" />
 			<input type="hidden" name="event_id" value="$id" />
 
 		</p>

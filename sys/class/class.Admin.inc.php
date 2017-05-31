@@ -39,7 +39,7 @@ public function processLoginForm(){
 	}
 	if(!isset($user))
 	{
-		return "Nieprawidłowa nazwa kurwa chuj  użytkownika lub hasło.";
+		return "Nieprawidłowa nazwa użytkownika lub hasło.";
 	}
 	$hash = $this->_getSaltedHash($pword, $user[0]['user_pass']);
 echo $hash."<br/>";
@@ -54,7 +54,7 @@ echo "lol";
 	}
 	else
 	{
-		return "Nieprawidłwa nazwa użytkownika lub hasło do chuja pana";
+		return "Nieprawidłwa nazwa użytkownika lub hasło";
 	}
 }
 public function processLogout(){
